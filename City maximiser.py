@@ -46,10 +46,18 @@ class CityGrid: #Object representing the city grid
         self.grid = grid  # 2D list representing the city grid
     def grid_render(self): #Prints the grid in a readable format
         for row in self.grid:
-            print(" . ".join(row))
+            print(row)
     def is_empty(self, x, y): #Checks if a specific cell in the grid is empty or occupied
         if self.grid[y][x] == '.': #Checks for an empty cell at a specific coordinate
             return "Empty"
         else:
             return "Occupied"
             
+grid = [[".", ".", ".", ".", "."], #Grid for the city with empty cells represented by "."
+        [".", ".", ".", ".", "."],
+        [".", ".", ".", ".", "."],
+        [".", ".", ".", ".", "."],
+        [".", ".", ".", ".", "."]]
+
+city = CityGrid(5, 5, grid)
+city.grid_render()
