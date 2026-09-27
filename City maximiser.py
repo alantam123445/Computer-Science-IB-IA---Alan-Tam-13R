@@ -43,7 +43,8 @@ class CityGrid: #Object representing the city grid
     def __init__(self, width, height, grid):
         self.width = width 
         self.height = height
-        self.grid = grid  # 2D list representing the city grid
+        self.grid = grid 
+        self.bonus = 0 # 2D list representing the city grid
     def grid_render(self): #Prints the grid in a readable format
         for row in self.grid:
             print(row)
@@ -52,7 +53,28 @@ class CityGrid: #Object representing the city grid
             return "Empty"
         else:
             return "Occupied"
-            
+    def neighbour_residential(self):
+        for i in range(self.width):
+            for j in range(self.height):
+                if self.grid[i][j] == "R": #Checks for residential districts in the grid
+                    if self.grid[i+1][j] == "P" or self.grid[i-1][j] == "P" or self.grid[i][j+1] == "P" or self.grid[i][j-1] == "P": #Checks for neighbouring park districts
+                        self.bonus += 10
+                    elif self.grid[i+1][j] == "I" or self.grid[i-1][j] == "I" or self.grid[i][j+1] == "I" or self.grid[i][j-1] == "I": #Checks for neighbouring industrial districts
+                        self.bonus -= 10
+                    elif self.grid[i+1][j] == "C" or self.grid[i-1][j] == "C" or self.grid[i][j+1] == "C" or self.grid[i][j-1] == "C": #Checks for neighbouring commercial districts
+                        self.bonus += 3
+                    else:
+                        self.bonus += 0
+    def neighbour_commercial(self):
+        for i in range(self.width):
+            for j in range(self.height):
+                if self.grid[i][j] == "C": #Checks for commercial districts in the grid
+                    if self.grid[i+1][j] == "I" or self.grid[i-1][j] == "I" or self.grid[i][j+1] == "I" or self.grid[i][j-1] == "I": #Checks for neighbouring industrial districts
+                        self.bonus += 3
+                    else:
+                        self.bonus += 0
+                        
+
 grid = [[".", ".", ".", ".", "."], #Grid for the city with empty cells represented by "."
         [".", ".", ".", ".", "."],
         [".", ".", ".", ".", "."],
