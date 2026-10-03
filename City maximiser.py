@@ -24,9 +24,9 @@ class Residential(District): #Residential subclass
             if district == 'P':
                 bonus += 10 #Commercial districts provide a bonus of 10
             elif district == 'I':
-                bonus -= 5 #Industrial districts provide a penalty of -5
+                bonus -= 10 #Industrial districts provide a penalty of -10
             elif district == 'C':
-                bonus += 5 #Recreational districts provide a bonus of 5
+                bonus += 3 #Commercial districts provide a bonus of 3
         return bonus
 class Commercial(District): #Commercial subclass
     def __init__(self, name, symbol, cost, upkeep, base_score):
