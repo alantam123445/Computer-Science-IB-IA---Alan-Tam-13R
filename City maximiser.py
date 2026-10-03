@@ -21,11 +21,11 @@ class Residential(District): #Residential subclass
     def calculate_bonus(self, nearby): #Calculates the bonus score for residential districts based on neighbouring districts
         bonus = 0
         for district in nearby:
-            if district == 'C':
+            if district == 'P':
                 bonus += 10 #Commercial districts provide a bonus of 10
             elif district == 'I':
                 bonus -= 5 #Industrial districts provide a penalty of -5
-            elif district == 'R':
+            elif district == 'C':
                 bonus += 5 #Recreational districts provide a bonus of 5
         return bonus
 class Commercial(District): #Commercial subclass
@@ -75,8 +75,8 @@ class CityGrid: #Object representing the city grid
                         nearby.append('C')
                     elif neighbour == 'I':
                         nearby.append('I')
-                    elif neighbour == 'R':
-                        nearby.append('R')
+                    elif neighbour == 'P':
+                        nearby.append('P')
             return nearby
 
 grid = [[".", ".", ".", ".", "."], #Grid for the city with empty cells represented by "."
