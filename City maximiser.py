@@ -18,7 +18,16 @@ class Residential(District): #Residential subclass
         self.population = 50 #provides a population score which contributes to the total, also is needed for placing other stuff
     def get_details(self):
         return f"{super().get_details()}"
-    
+    def calculate_bonus(self, nearby): #Calculates the bonus score for residential districts based on neighbouring districts
+        bonus = 0
+        for district in nearby:
+            if district == 'C':
+                bonus += 10 #Commercial districts provide a bonus of 10
+            elif district == 'I':
+                bonus -= 5 #Industrial districts provide a penalty of -5
+            elif district == 'R':
+                bonus += 5 #Recreational districts provide a bonus of 5
+        return bonus
 class Commercial(District): #Commercial subclass
     def __init__(self, name, symbol, cost, upkeep, base_score):
         super().__init__(name, symbol, cost, upkeep, base_score)
@@ -53,27 +62,22 @@ class CityGrid: #Object representing the city grid
             return "Empty"
         else:
             return "Occupied"
-    def neighbour_residential(self):
-        for i in range(self.width):
-            for j in range(self.height):
-                if self.grid[i][j] == "R": #Checks for residential districts in the grid
-                    if self.grid[i+1][j] == "P" or self.grid[i-1][j] == "P" or self.grid[i][j+1] == "P" or self.grid[i][j-1] == "P": #Checks for neighbouring park districts
-                        self.bonus += 10
-                    elif self.grid[i+1][j] == "I" or self.grid[i-1][j] == "I" or self.grid[i][j+1] == "I" or self.grid[i][j-1] == "I": #Checks for neighbouring industrial districts
-                        self.bonus -= 10
-                    elif self.grid[i+1][j] == "C" or self.grid[i-1][j] == "C" or self.grid[i][j+1] == "C" or self.grid[i][j-1] == "C": #Checks for neighbouring commercial districts
-                        self.bonus += 3
-                    else:
-                        self.bonus += 0
-    def neighbour_commercial(self):
-        for i in range(self.width):
-            for j in range(self.height):
-                if self.grid[i][j] == "C": #Checks for commercial districts in the grid
-                    if self.grid[i+1][j] == "I" or self.grid[i-1][j] == "I" or self.grid[i][j+1] == "I" or self.grid[i][j-1] == "I": #Checks for neighbouring industrial districts
-                        self.bonus += 3
-                    else:
-                        self.bonus += 0
-                        
+    def neighbour_list(self, x, y): #Calculates the neighbour districts for residential districts based on neighbouring districts
+            nearby = []
+            for i in range(-1, 2):
+                for j in range(-1, 2):
+                    if (i == 0 and j == 0) or (x + i < 0 or x + i >= self.width or y + j < 0 or y + j >= self.height):
+                        continue
+                    if abs(i) == abs(j):
+                        continue
+                    neighbour = self.grid[y + j][x + i]
+                    if neighbour == 'C':
+                        nearby.append('C')
+                    elif neighbour == 'I':
+                        nearby.append('I')
+                    elif neighbour == 'R':
+                        nearby.append('R')
+            return nearby
 
 grid = [[".", ".", ".", ".", "."], #Grid for the city with empty cells represented by "."
         [".", ".", ".", ".", "."],
