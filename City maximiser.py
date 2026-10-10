@@ -35,7 +35,7 @@ class Commercial(District): #Commercial subclass
     def get_details(self):
         return f"{super().get_details()}"
       
-class industrial(District): #industrial subclass
+class Industrial(District): #industrial subclass
     def __init__(self, name, symbol, cost, upkeep, base_score):
         super().__init__(name, symbol, cost, upkeep, base_score)
         self.revenue = 300 #Revenue per round
@@ -78,6 +78,12 @@ class CityGrid: #Object representing the city grid
                     elif neighbour == 'P':
                         nearby.append('P')
             return nearby
+
+class GameEngine:
+    def __init__(self, budget, turn, total_score):
+        self.budget = 1000 #Initial budget for the player
+        self.turn = 25 #Number of turns the player has
+        self.total_score = 0 #Total score of the player
 
 grid = [[".", ".", ".", ".", "."], #Grid for the city with empty cells represented by "."
         [".", ".", ".", ".", "."],
