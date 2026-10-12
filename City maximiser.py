@@ -78,13 +78,45 @@ class CityGrid: #Object representing the city grid
                     elif neighbour == 'P':
                         nearby.append('P')
             return nearby
-
+    def upkeep_calculation(self):
+        UpkeepTotal = 0
+        for i in self.grid:
+            for r in i:
+                if self.grid[self.grid.index(i)][i.index(r)] == 'P':
+                    UpkeepTotal += 10
+                elif self.grid[self.grid.index(i)][i.index(r)] == 'R':
+                    UpkeepTotal += 5
+                elif self.grid[self.grid.index(i)][i.index(r)] == 'C':
+                    UpkeepTotal += 5
+                elif self.grid[self.grid.index(i)][i.index(r)] == 'I':
+                    UpkeepTotal += 10
+                else:
+                    UpkeepTotal += 0
+        return UpkeepTotal
+        
 class GameEngine:
     def __init__(self, budget, turn, total_score):
         self.budget = 1000 #Initial budget for the player
         self.turn = 25 #Number of turns the player has
         self.total_score = 0 #Total score of the player
-
+    def update_budget(self): #Updates the budget based on the cost of placing a district
+        self.budget -= CityGrid.upkeep_calculation(self) #Calls the upkeep calculation function to deduct the upkeep cost from the budget
+        return self.budget
+    def update_score(self): #Updates the total score based on the score of the placed district
+        self.total_score += Residential.calculate_bonus(self) #Calls the calculate bonus function to add the bonus score to the total score
+        return self.total_score
+    def update_turn(self): #Updates the turn count after each round
+        self.turn -= 1
+        return self.turn
+    def place_district(self, district,x,y):#Places district at a specific coordinate
+        if CityGrid.is_empty(self,x,y) == ".":
+            CityGrid.grid[y][x] = district.symbol
+            self.budget -= district.cost
+            self.total_score += district.base_score
+            print(f"{district.name} placed at ({x}, {y}). Budget: {self.budget}, Total Score: {self.total_score}")
+        else:
+            print(f"Cannot place {district.name} at ({x}, {y}). Cell is occupied.")
+            
 grid = [[".", ".", ".", ".", "."], #Grid for the city with empty cells represented by "."
         [".", ".", ".", ".", "."],
         [".", ".", ".", ".", "."],
