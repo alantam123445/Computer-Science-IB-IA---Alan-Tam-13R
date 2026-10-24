@@ -1,7 +1,7 @@
 import sys
 import os
 import random #python libraries used in the program
-
+import time
 class District:
     def __init__(self, name, symbol, cost, upkeep, base_score): #Base attributes of the district
         self.name = name #Name of the district eg. residential, commericial
@@ -106,12 +106,15 @@ class GameEngine:
         self.budget = 1000 #Initial budget for the player
         self.turn = 25 #Number of turns the player has
         self.total_score = 0 #Total score of the player
-    def end_turn(self): #Ends the turn and updates the budget and score
+    def end_turn(self, grid): #Ends the turn and updates the budget and score
         self.turn -= 1
-        self.budget -= CityGrid.total_upkeep(self) #Subtracts the total upkeep cost from the budget at the end of each turn
-        self.budget += CityGrid.total_income(self) #Adds the total income to the budget at the end of each turn
+        self.budget -= CityGrid.total_upkeep(grid) #Subtracts the total upkeep cost from the budget at the end of each turn
+        self.budget += CityGrid.total_income(grid) #Adds the total income to the budget at the end of each turn
         self.total_score += 10 #Adds 10 to the total score at the end of each turn
-
+    def district_draft(self):#Method that choses 2 of the 4 districts randomly for the player to choose from
+        districts = [Residential(), Commercial(), Industrial(), Recreational()]
+        return random.sample(districts, 2) #Randomly selects 2 districts from the list of 4
+    
 grid = [[".", ".", ".", ".", "."], #Grid for the city with empty cells represented by "."
         [".", ".", ".", ".", "."],
         [".", ".", ".", ".", "."],
@@ -120,3 +123,24 @@ grid = [[".", ".", ".", ".", "."], #Grid for the city with empty cells represent
 
 city = CityGrid(5, 5, grid)
 city.grid_render()
+
+print("Welcome to City Maximiser! Your goal is to build a city and maximise your score. You have a budget of 1000 and 25 turns to build your city. Each district has a cost and upkeep, and will provide a base score. Residential districts will also provide a bonus score based on neighbouring districts. Good luck!")
+time.sleep(3)
+print("You will be presented with 2 districts to choose from each turn. You can place the district on the grid by entering the x and y coordinates of the cell you want to place it in. You can also choose to skip your turn and not place a district. The game will end when you run out of turns or budget.")
+print("Let's begin!")
+while GameEngine.turn > 0 and GameEngine.budget > 0:
+    print(f"Turn: {GameEngine.turn}, Budget: {GameEngine.budget}, Total Score: {GameEngine.total_score}")
+    time.sleep(2)
+    print("Choosing random districts...")
+    districts = GameEngine.district_draft()
+    time.sleep(2)
+    print("You have been presented with the following districts:\n")
+    for i, district in enumerate(districts):
+        print(f"{i + 1}. {district.get_details()}")
+        choice = input("Choose the district to be placed (1 or 2)")
+        time.sleep(2)
+        if choice == "1":
+            print("Choose a location to place the district (x, y):")
+            x = int(input("Enter the x coordinate (0-4): "))
+            y = int(input("Enter the y coordinate (0-4): "))
+            grid.insert(y, x, districts[0].symbol)
