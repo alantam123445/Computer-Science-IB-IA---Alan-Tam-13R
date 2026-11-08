@@ -14,7 +14,7 @@ class District:
 
 class Residential(District): #Residential subclass
     def __init__(self):
-        super().__init__("Residential", "R", 100, 5, 10) #inherits attributes of the district template
+        super().__init__("Residential", "R", 100, 20, 10) #inherits attributes of the district template
         self.population = 50 #provides a population score which contributes to the total, also is needed for placing other stuff
     def get_details(self):
         return f"{super().get_details()}"
@@ -30,14 +30,14 @@ class Residential(District): #Residential subclass
         return bonus
 class Commercial(District): #Commercial subclass
     def __init__(self):
-        super().__init__("Commercial", "C", 200, 25, 5) #inherits attributes of the district template
+        super().__init__("Commercial", "C", 200, 100, 5) #inherits attributes of the district template
         self.revenue = 100 #revenue per round
     def get_details(self):
         return f"{super().get_details()}"
       
 class Industrial(District): #industrial subclass
     def __init__(self):
-        super().__init__("Industrial", "I", 400, 40, 0) #inherits attributes of the district template
+        super().__init__("Industrial", "I", 400, 200, 0) #inherits attributes of the district template
         self.revenue = 300 #Revenue per round
     def get_details(self):
         return f"{super().get_details()}"
@@ -103,9 +103,9 @@ class CityGrid: #Object representing the city grid
         return total_income
 class GameEngine:
     def __init__(self, budget, turn, total_score):
-        self.budget = 1000 #Initial budget for the player
-        self.turn = 25 #Number of turns the player has
-        self.total_score = 0 #Total score of the player
+        self.budget = budget #Initial budget for the player
+        self.turn = turn #Number of turns the player has
+        self.total_score = total_score #Total score of the player
     def end_turn(self, grid): #Ends the turn and updates the budget and score
         self.turn -= 1
         self.budget -= CityGrid.total_upkeep(grid) #Subtracts the total upkeep cost from the budget at the end of each turn
@@ -121,8 +121,8 @@ grid = [[".", ".", ".", ".", "."], #Grid for the city with empty cells represent
         [".", ".", ".", ".", "."],
         [".", ".", ".", ".", "."]]
 
-city = CityGrid(5, 5, grid)
-
+City = CityGrid(5, 5, grid)
+Game = GameEngine(1000, 25, 0)
 
 print("Welcome to City Maximiser!\nYour goal is to build a city and maximise your score.\nYou have a budget of 1000 and 25 turns to build your city.\nEach district has a cost and upkeep, and will provide a base score.\nResidential districts will also provide a bonus score based on neighbouring districts.\nGood luck!")
 time.sleep(3) #Introduction messages + time delay to allow the player to read the messages
@@ -130,69 +130,69 @@ print("You will be presented with 2 districts to choose from each turn.\nYou can
 time.sleep(2)
 print("Let's begin!")
 time.sleep(3)
-while GameEngine.turn > 0 and GameEngine.budget > 0: #While loop to create the gameplay loop
-    print("\nCurrent City Grid:\n"+CityGrid.grid_render(grid)) #displays the current state of the grid in the game
-    print(f"Turn: {GameEngine.turn}, Budget: {GameEngine.budget}, Total Score: {GameEngine.total_score}") #Display the current state of the player's budget
+while Game.turn > 0 and Game.budget > 0: #While loop to create the gameplay loop
+    print("\nCurrent City Grid:\n") #displays the current state of the grid in the game
+    City.grid_render()
+    print(f"Turn: {Game.turn}, Budget: {Game.budget}, Total Score: {Game.total_score}") #Display the current state of the player's budget
     time.sleep(2)
     print("Choosing random districts...") 
-    districts = GameEngine.district_draft() #Randomly chooses 2 districts
+    districts = Game.district_draft() #Randomly chooses 2 districts
     time.sleep(2)
     print("You have been presented with the following districts:\n")
     for i, district in enumerate(districts): #Prints the details of the districts that have been randomly chosen for the player to choose from
-        print(f"{i + 1}. {district.get_details()}")
-        choice = input("Choose the district to be placed (1 or 2)") #makes the player choose 1 to place
-        time.sleep(2)
-        if choice == "1":
-            print("Choose a location to place the district (x, y):")
-            time.sleep(1)
-            x = int(input("Enter the x coordinate (0-4): "))
-            time.sleep(1)
-            y = int(input("Enter the y coordinate (0-4): "))
-            if city.is_empty(x, y) == False: #checks if the cell is empty
-                print("That cell is already occupied. Please choose another cell.")
+        print(f"{i}. {district.get_details()}")
+    choice = input("Choose the district to be placed (0 or 1): ") #makes the player choose 0 or 1 to place
+    time.sleep(2)
+    if choice == "0":
+        print("Choose a location to place the district (x, y):")
+        time.sleep(1)
+        x = int(input("Enter the x coordinate (0-4): "))
+        time.sleep(1)
+        y = int(input("Enter the y coordinate (0-4): "))
+        if City.is_empty(x, y) == False: #checks if the cell is empty
+            print("That cell is already occupied. Please choose another cell.")
+        else:
+            if districts[0].cost > Game.budget: #checks the budget of the player
+                print("You do not have enough budget to place this district. Please choose another district.")
             else:
-                if districts[0].cost > GameEngine.budget: #checks the budget of the player
-                    print("You do not have enough budget to place this district. Please choose another district.")
+                if x < 0 or x > 4 or y < 0 or y > 4: #Checks the valid state of the coordinates
+                    print("Invalid coordinates. Please choose coordinates between 0 and 4.")
                 else:
-                    if x < 0 or x > 4 or y < 0 or y > 4: #Checks the valid state of the coordinates
-                        print("Invalid coordinates. Please choose coordinates between 0 and 4.")
+                    City.grid[y][x] = districts[0].symbol
+                    Game.budget -= districts[0].cost
+                    if isinstance(districts[0], Residential): #Calculates the bonus score if it is residential district
+                        nearby = City.neighbour_list(x,y)
+                        bonus = districts[0].calculate_bonus(nearby)
+                        Game.total_score += districts[0].base_score + bonus
                     else:
-                        city.grid[y][x] = districts[0].symbol
-                        GameEngine.budget -= districts[0].cost
-                        if isinstance(districts[0], Residential): #Calculates the bonus score if it is residential district
-                            nearby = city.neighbour_list(x,y)
-                            bonus = districts[0].calculate_bonus(nearby)
-                            GameEngine.total_score += districts[0].base_score + bonus
-                        else:
-                            GameEngine.total_score += districts[0].base_score
-                continue
-            
-        elif choice == "2":
-            print("Choose a location to place the district (x, y):")
-            time.sleep(1)
-            x = int(input("Enter the x coordinate (0-4): "))
-            time.sleep(1)
-            y = int(input("Enter the y coordinate (0-4): "))
-            if city.is_empty(x, y) == False:
-                print("That cell is already occupied. Please choose another cell.")
+                        Game.total_score += districts[0].base_score
+    elif choice == "1":
+        print("Choose a location to place the district (x, y):")
+        time.sleep(1)
+        x = int(input("Enter the x coordinate (0-4): "))
+        time.sleep(1)
+        y = int(input("Enter the y coordinate (0-4): "))
+        if City.is_empty(x, y) == False:
+            print("That cell is already occupied. Please choose another cell.")
+        else:
+            if districts[1].cost > Game.budget:
+                print("You do not have enough budget to place this district. Please choose another district.")
             else:
-                if districts[1].cost > GameEngine.budget:
-                    print("You do not have enough budget to place this district. Please choose another district.")
+                if x < 0 or x > 4 or y < 0 or y > 4:
+                    print("Invalid coordinates. Please choose coordinates between 0 and 4.")
                 else:
-                    if x < 0 or x > 4 or y < 0 or y > 4:
-                        print("Invalid coordinates. Please choose coordinates between 0 and 4.")
+                    City.grid[y][x] = districts[1].symbol
+                    Game.budget -= districts[1].cost
+                    if isinstance(districts[1], Residential):
+                        nearby = City.neighbour_list(x,y)
+                        bonus = districts[1].calculate_bonus(nearby)
+                        Game.total_score += districts[1].base_score + bonus
                     else:
-                        city.grid[y][x] = districts[1].symbol
-                        GameEngine.budget -= districts[1].cost
-                        if isinstance(districts[1], Residential):
-                            nearby = city.neighbour_list(x,y)
-                            bonus = districts[1].calculate_bonus(nearby)
-                            GameEngine.total_score += districts[1].base_score + bonus
-                        else:
-                            GameEngine.total_score += districts[1].base_score
-                continue
+                        Game.total_score += districts[1].base_score
+    else:
+        print("Invalid choice. Please choose 0 or 1.")
     time.sleep(3)
-    GameEngine.end_turn(city) #Ends the turn and updates the budget and score
+    Game.end_turn(City) #Ends the turn and updates the budget and score
 print("Game Over! You have run out of turns or budget.")
-print(f"Total Score: {GameEngine.total_score}")
-print(f"Turns Played: {GameEngine.turn}")
+print(f"Total Score: {Game.total_score}")
+print(f"Turns Played: {Game.turn}")
