@@ -125,11 +125,11 @@ City = CityGrid(5, 5, grid)
 Game = GameEngine(1000, 25, 0)
 
 print("Welcome to City Maximiser!\nYour goal is to build a city and maximise your score.\nYou have a budget of 1000 and 25 turns to build your city.\nEach district has a cost and upkeep, and will provide a base score.\nResidential districts will also provide a bonus score based on neighbouring districts.\nGood luck!")
-time.sleep(3) #Introduction messages + time delay to allow the player to read the messages
+time.sleep(5) #Introduction messages + time delay to allow the player to read the messages
 print("You will be presented with 2 districts to choose from each turn.\nYou can place the district on the grid by entering the x and y coordinates of the cell you want to place it in.\nYou can also choose to skip your turn and not place a district.\nThe game will end when you run out of turns or budget.")
-time.sleep(2)
+time.sleep(5)
 print("Let's begin!")
-time.sleep(3)
+time.sleep(2)
 while Game.turn > 0 and Game.budget > 0: #While loop to create the gameplay loop
     print("\nCurrent City Grid:\n") #displays the current state of the grid in the game
     City.grid_render()
@@ -142,7 +142,7 @@ while Game.turn > 0 and Game.budget > 0: #While loop to create the gameplay loop
     for i, district in enumerate(districts): #Prints the details of the districts that have been randomly chosen for the player to choose from
         print(f"{i}. {district.get_details()}")
     choice = input("Choose the district to be placed (0 or 1): ") #makes the player choose 0 or 1 to place
-    time.sleep(2)
+    time.sleep(1)
     if choice == "0":
         print("Choose a location to place the district (x, y):")
         time.sleep(1)
