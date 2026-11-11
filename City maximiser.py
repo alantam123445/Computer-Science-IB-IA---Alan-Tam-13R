@@ -124,85 +124,104 @@ grid = [[".", ".", ".", ".", "."], #Grid for the city with empty cells represent
 City = CityGrid(5, 5, grid)
 Game = GameEngine(1000, 25, 0)
 
-print("Welcome to City Maximiser!\nYour goal is to build a city and maximise your score.\nYou have a budget of 1000 and 25 turns to build your city.\nEach district has a cost and upkeep, and will provide a base score.\nResidential districts will also provide a bonus score based on neighbouring districts.\nGood luck!")
-time.sleep(5) #Introduction messages + time delay to allow the player to read the messages
-print("You will be presented with 2 districts to choose from each turn.\nYou can place the district on the grid by entering the x and y coordinates of the cell you want to place it in.\nYou can also choose to skip your turn and not place a district.\nThe game will end when you run out of turns or budget.\nEach successful turn will add 5 points to your total score!")
-time.sleep(5)
-print("Let's begin!")
-time.sleep(2)
-while Game.turn > 0 and Game.budget > 0: #While loop to create the gameplay loop
-    print("\nCurrent City Grid:\n") #displays the current state of the grid in the game
-    City.grid_render()
-    print(f"Turn: {Game.turn}, Budget: {Game.budget}, Total Score: {Game.total_score}") #Display the current state of the player's budget
+def main(): #Main function that runs the game
+    print("Welcome to City Maximiser!\nYour goal is to build a city and maximise your score.\nYou have a budget of 1000 and 25 turns to build your city.\nEach district has a cost and upkeep, and will provide a base score.\nResidential districts will also provide a bonus score based on neighbouring districts.\nGood luck!")
+    time.sleep(5) #Introduction messages + time delay to allow the player to read the messages
+    print("You will be presented with 2 districts to choose from each turn.\nYou can place the district on the grid by entering the x and y coordinates of the cell you want to place it in.\nYou can also choose to skip your turn and not place a district.\nThe game will end when you run out of turns or budget.\nEach successful turn will add 5 points to your total score!")
+    time.sleep(5)
+    print("Let's begin!")
     time.sleep(2)
-    print("Choosing random districts...") 
-    districts = Game.district_draft() #Randomly chooses 2 districts
-    time.sleep(2)
-    print("You have been presented with the following districts:\n")
-    for i, district in enumerate(districts): #Prints the details of the districts that have been randomly chosen for the player to choose from
-        print(f"{i}. {district.get_details()}")
-    choice = input("Choose the district to be placed (0 or 1): ") #makes the player choose 0 or 1 to place
-    time.sleep(1)
-    if choice == "0":
-        print("Choose a location to place the district (x, y):")
+    while Game.turn > 0 and Game.budget > 0: #While loop to create the gameplay loop
+        print("\nCurrent City Grid:\n") #displays the current state of the grid in the game
+        City.grid_render()
+        print(f"Turn: {Game.turn}, Budget: {Game.budget}, Total Score: {Game.total_score}") #Display the current state of the player's budget
+        time.sleep(2)
+        print("Choosing random districts...") 
+        districts = Game.district_draft() #Randomly chooses 2 districts
+        time.sleep(2)
+        print("You have been presented with the following districts:\n")
+        for i, district in enumerate(districts): #Prints the details of the districts that have been randomly chosen for the player to choose from
+            print(f"{i}. {district.get_details()}")
+        choice = input("Choose the district to be placed (0 or 1): ") #makes the player choose 0 or 1 to place
         time.sleep(1)
-        x = int(input("Enter the x coordinate (0-4): "))
-        time.sleep(1)
-        y = int(input("Enter the y coordinate (0-4): "))
-        if x < 0 or x > 4 or y < 0 or y > 4: #Checks the valid state of the coordinates
-            print("Invalid coordinates. Please choose coordinates between 0 and 4.")
-        
-        elif City.is_empty(x, y) == False: #checks if the cell is empty
-                print("That cell is already occupied. Please choose another cell.")
-        else:
-            if districts[0].cost > Game.budget: #checks the budget of the player
-                    print("You do not have enough budget to place this district. Please choose another district.")
+        if 100 > Game.budget: #Checks if the player has enough budget to place a district
+            if City.total_income() == 0: #Checks if the player has any income to maintain the budget
+                print("You do not have any income to maintain the budget. Game Over!")
+                break
             else:
+                print("You do not have enough budget to place any districts. Please skip your turn.")
+                time.sleep(2)
+                Game.end_turn(City) #Ends the turn and updates the budget and score
+        else:
+            if choice == "0":
+                print("Choose a location to place the district (x, y):")
+                time.sleep(1)
+                x = int(input("Enter the x coordinate (0-4): "))
+                time.sleep(1)
+                y = int(input("Enter the y coordinate (0-4): "))
                 if x < 0 or x > 4 or y < 0 or y > 4: #Checks the valid state of the coordinates
-                        print("Invalid coordinates. Please choose coordinates between 0 and 4.")
+                    print("Invalid coordinates. Please choose coordinates between 0 and 4.")
+                
+                elif City.is_empty(x, y) == False: #checks if the cell is empty
+                        print("That cell is already occupied. Please choose another cell.")
                 else:
-                    City.grid[y][x] = districts[0].symbol
-                    Game.budget -= districts[0].cost
-                    if isinstance(districts[0], Residential): #Calculates the bonus score if it is residential district
-                        nearby = City.neighbour_list(x,y)
-                        bonus = districts[0].calculate_bonus(nearby)
-                        Game.total_score += districts[0].base_score + bonus
+                    if districts[0].cost > Game.budget: #checks the budget of the player
+                            print("You do not have enough budget to place this district. Please choose another district.")
                     else:
-                        Game.total_score += districts[0].base_score
-                    time.sleep(3)
-                    Game.end_turn(City) #Ends the turn and updates the budget and score
-    elif choice == "1":
-        print("Choose a location to place the district (x, y):")
-        time.sleep(1)
-        x = int(input("Enter the x coordinate (0-4): "))
-        time.sleep(1)
-        y = int(input("Enter the y coordinate (0-4): "))
-        if x < 0 or x > 4 or y < 0 or y > 4:
-            print("Invalid coordinates. Please choose coordinates between 0 and 4.")
-        elif City.is_empty(x, y) == False:
-            print("That cell is already occupied. Please choose another cell.")
-        else:
-            if districts[1].cost > Game.budget:
-                print("You do not have enough budget to place this district. Please choose another district.")
-            else:
+                        if x < 0 or x > 4 or y < 0 or y > 4: #Checks the valid state of the coordinates
+                                print("Invalid coordinates. Please choose coordinates between 0 and 4.")
+                        else:
+                            City.grid[y][x] = districts[0].symbol
+                            Game.budget -= districts[0].cost
+                            if isinstance(districts[0], Residential): #Calculates the bonus score if it is residential district
+                                nearby = City.neighbour_list(x,y)
+                                bonus = districts[0].calculate_bonus(nearby)
+                                Game.total_score += districts[0].base_score + bonus
+                            else:
+                                Game.total_score += districts[0].base_score
+                            time.sleep(3)
+                            Game.end_turn(City) #Ends the turn and updates the budget and score
+            elif choice == "1":
+                print("Choose a location to place the district (x, y):")
+                time.sleep(1)
+                x = int(input("Enter the x coordinate (0-4): "))
+                time.sleep(1)
+                y = int(input("Enter the y coordinate (0-4): "))
                 if x < 0 or x > 4 or y < 0 or y > 4:
                     print("Invalid coordinates. Please choose coordinates between 0 and 4.")
+                elif City.is_empty(x, y) == False:
+                    print("That cell is already occupied. Please choose another cell.")
                 else:
-                    City.grid[y][x] = districts[1].symbol
-                    Game.budget -= districts[1].cost
-                    if isinstance(districts[1], Residential):
-                        nearby = City.neighbour_list(x,y)
-                        bonus = districts[1].calculate_bonus(nearby)
-                        Game.total_score += districts[1].base_score + bonus
+                    if districts[1].cost > Game.budget:
+                        print("You do not have enough budget to place this district. Please choose another district.")
                     else:
-                        Game.total_score += districts[1].base_score
-                    time.sleep(3)
-                    Game.end_turn(City) #Ends the turn and updates the budget and score
-    else:
-        print("Invalid choice. Please choose 0 or 1.")
-    
-print("\nFinal City Grid:\n")
-City.grid_render()
-print("Game Over! You have run out of turns or budget.")
-print(f"Total Score: {Game.total_score}")
-print(f"Turns Played: {Game.turn}")
+                        if x < 0 or x > 4 or y < 0 or y > 4:
+                            print("Invalid coordinates. Please choose coordinates between 0 and 4.")
+                        else:
+                            City.grid[y][x] = districts[1].symbol
+                            Game.budget -= districts[1].cost
+                            if isinstance(districts[1], Residential):
+                                nearby = City.neighbour_list(x,y)
+                                bonus = districts[1].calculate_bonus(nearby)
+                                Game.total_score += districts[1].base_score + bonus
+                            else:
+                                Game.total_score += districts[1].base_score
+                            time.sleep(3)
+                            Game.end_turn(City) #Ends the turn and updates the budget and score
+            else:
+                print("Invalid choice. Please choose 0 or 1.")
+            
+    print("\nFinal City Grid:\n")
+    City.grid_render()
+    print("Game Over! You have run out of turns or budget.")
+    print(f"Total Score: {Game.total_score}")
+    print(f"Turns Played: {Game.turn}")
+
+print("CITY MAXIMISER")
+print("By: Alan Tam")
+option = int(input("1. Start Game\n2. Exit\nChoose an option: ")) #Menu for the player to choose to start the game or exit
+if option == 1:
+    main() #Starts the game
+elif option == 2:
+    print("Exiting the game. Goodbye!")
+    sys.exit() #Exits the game
